@@ -83,6 +83,7 @@ public class GameActivity extends AppCompatActivity {
         int[] appleCoord = mGame.getAppleCoord();
         int appleLeft = appleCoord[0];
         int appleTop = appleCoord[1];
+        System.out.println(appleLeft + ", " + appleTop);
         Bitmap ourBitmap = Bitmap.createBitmap(mBOARD_WIDTH, mBOARD_HEIGHT, Bitmap.Config.ARGB_8888);
         Canvas window = new Canvas(ourBitmap);
         Rect rectangle = null;
