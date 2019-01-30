@@ -14,8 +14,8 @@ public class SnakeGame {
       mSpriteDim = beginningSpriteDim;
       mBOARD_WIDTH = width;
       mBOARD_HEIGHT = height;
-      mXMax = mBOARD_WIDTH / mSpriteDim - 1;
-      mYMax = mBOARD_HEIGHT / mSpriteDim - 1;
+      mXMax = mBOARD_WIDTH / mSpriteDim;
+      mYMax = mBOARD_HEIGHT / mSpriteDim;
       mScore = 0;
       mLevel = 1;
       mCountdown = 12;
@@ -55,15 +55,38 @@ public class SnakeGame {
   }
 
   private void setAppleCoord() {
-      mAppleCoord[0] = (int) (mXMax * Math.random()) * mSpriteDim;
-      mAppleCoord[1] = (int) (mYMax * Math.random()) * mSpriteDim;
+      //mAppleCoord[0] = (int) (mXMax * Math.random()) * mSpriteDim;
+      //mAppleCoord[1] = (int) (mYMax * Math.random()) * mSpriteDim;
+      int[] max = {mXMax, mYMax};
+      int[] coord = {mSnake.get(0).getXLoc(), mSnake.get(0).getYLoc()};
+      for (int i = 0; i < mAppleCoord.length; i++) {
+          int rand;
+          do {
+              rand = (int) (max[i] * Math.random()) * mSpriteDim;
+          } while (rand == coord[i]);
+          mAppleCoord[i] = rand;
+      }
   }
 
   protected void eatApple(){
-  
+    if (mSnake.get(0).getXLoc() == mAppleCoord[0] / mSpriteDim && mSnake.get(0).getYLoc() == mAppleCoord[1] / mSpriteDim) {
+        setAppleCoord();
+        growSnake();
+    }
+  }
+
+  private void growSnake() {
+      mSnake.add(mSnake.size() - 1, new SnakeSegment(SnakeSegment.BodyPart.BODY, mSnake.get(mSnake.size() - 1).getDegrees(), mSnake.get(mSnake.size() - 1).getXLoc(), mSnake.get(mSnake.size() - 1).getYLoc()));
+      switch (mSnake.get(mSnake.size() - 1).getDegrees()) {
+          case 0: mSnake.get(mSnake.size() - 1).setXLoc(mSnake.get(mSnake.size() - 1).getXLoc() - 1); break;
+          case 90: mSnake.get(mSnake.size() - 1).setYLoc(mSnake.get(mSnake.size() - 1).getYLoc() - 1); break;
+          case 180: mSnake.get(mSnake.size() - 1).setXLoc(mSnake.get(mSnake.size() - 1).getXLoc() + 1); break;
+          case 270: mSnake.get(mSnake.size() - 1).setYLoc(mSnake.get(mSnake.size() - 1).getYLoc() + 1); break;
+      }
   }
     
   protected boolean play(){
+      eatApple();
       for (int i = 0; i < mSnake.size(); i++) {
           int xLoc = mSnake.get(i).getXLoc();
           int yLoc = mSnake.get(i).getYLoc();
@@ -91,7 +114,7 @@ public class SnakeGame {
                   mSnake.get(i).setYLoc(--yLoc);
                   break;
           }
-          if (!mGameOver) mGameOver = (xLoc > mXMax || yLoc > mYMax || xLoc < 1 || yLoc < 1);
+          if (!mGameOver) mGameOver = (xLoc > mXMax || yLoc > mYMax || xLoc < 0 || yLoc < 0);
       }
       return mGameOver;
   }
