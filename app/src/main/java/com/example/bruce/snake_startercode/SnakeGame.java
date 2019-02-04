@@ -72,6 +72,7 @@ public class SnakeGame {
     if (mSnake.get(0).getXLoc() == mAppleCoord[0] / mSpriteDim && mSnake.get(0).getYLoc() == mAppleCoord[1] / mSpriteDim) {
         setAppleCoord();
         growSnake();
+        updateScoring();
     }
   }
 
@@ -84,7 +85,13 @@ public class SnakeGame {
           case 270: mSnake.get(mSnake.size() - 1).setYLoc(mSnake.get(mSnake.size() - 1).getYLoc() + 1); break;
       }
   }
-    
+
+  private void updateScoring() {
+      mScore++;
+      mCountdown--;
+      if (mCountdown == 0) mGameOver = true;
+  }
+
   protected boolean play(){
       eatApple();
       for (int i = 0; i < mSnake.size(); i++) {
@@ -115,6 +122,15 @@ public class SnakeGame {
                   break;
           }
           if (!mGameOver) mGameOver = (xLoc > mXMax || yLoc > mYMax || xLoc < 0 || yLoc < 0);
+          if (i != 0 && mSnake.get(0).getXLoc() == mSnake.get(i).getXLoc() && mSnake.get(0).getYLoc() == mSnake.get(i).getYLoc()) mGameOver = true;
+          /*if (!mGameOver) {
+              for (int p = 1; p < mSnake.size(); p++) {
+                  if (mSnake.get(0).getXLoc() == mSnake.get(p).getXLoc() && mSnake.get(0).getYLoc() == mSnake.get(p).getYLoc()) {
+                      mGameOver = true;
+                      break;
+                  }
+              }
+          }*/
       }
       return mGameOver;
   }
