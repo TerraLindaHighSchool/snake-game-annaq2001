@@ -55,8 +55,6 @@ public class SnakeGame {
   }
 
   private void setAppleCoord() {
-      //mAppleCoord[0] = (int) (mXMax * Math.random()) * mSpriteDim;
-      //mAppleCoord[1] = (int) (mYMax * Math.random()) * mSpriteDim;
       int[] max = {mXMax, mYMax};
       int[] coord = {mSnake.get(0).getXLoc(), mSnake.get(0).getYLoc()};
       for (int i = 0; i < mAppleCoord.length; i++) {
@@ -97,6 +95,7 @@ public class SnakeGame {
       for (int i = 0; i < mSnake.size(); i++) {
           int xLoc = mSnake.get(i).getXLoc();
           int yLoc = mSnake.get(i).getYLoc();
+          int origdegrees = mSnake.get(i).getDegrees();
           if (mPivotPoints.size() != 0) {
               for (int p = 0; p < mPivotPoints.size(); p++) {
                   if (xLoc == mPivotPoints.get(p).getX() && yLoc == mPivotPoints.get(p).getY()) {
@@ -109,28 +108,24 @@ public class SnakeGame {
           int degrees = mSnake.get(i).getDegrees();
           switch (degrees) {
               case 0:
+                  if (origdegrees == degrees && !mGameOver && xLoc + 1 > mXMax) return true;
                   mSnake.get(i).setXLoc(++xLoc);
                   break;
               case 180:
+                  if (origdegrees == degrees && !mGameOver && xLoc - 1 < 0) return true;
                   mSnake.get(i).setXLoc(--xLoc);
                   break;
               case 90:
+                  if (origdegrees == degrees && !mGameOver && yLoc + 1 > mYMax) return true;
                   mSnake.get(i).setYLoc(++yLoc);
                   break;
               case 270:
+                  if (origdegrees == degrees && !mGameOver && yLoc - 1 < 0) return true;
                   mSnake.get(i).setYLoc(--yLoc);
                   break;
           }
           if (!mGameOver) mGameOver = (xLoc > mXMax || yLoc > mYMax || xLoc < 0 || yLoc < 0);
           if (i != 0 && mSnake.get(0).getXLoc() == mSnake.get(i).getXLoc() && mSnake.get(0).getYLoc() == mSnake.get(i).getYLoc()) mGameOver = true;
-          /*if (!mGameOver) {
-              for (int p = 1; p < mSnake.size(); p++) {
-                  if (mSnake.get(0).getXLoc() == mSnake.get(p).getXLoc() && mSnake.get(0).getYLoc() == mSnake.get(p).getYLoc()) {
-                      mGameOver = true;
-                      break;
-                  }
-              }
-          }*/
       }
       return mGameOver;
   }
