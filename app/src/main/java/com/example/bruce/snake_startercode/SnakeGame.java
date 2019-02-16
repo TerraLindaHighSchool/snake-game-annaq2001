@@ -9,6 +9,7 @@ public class SnakeGame {
   private boolean mGameOver = false;
   private List<SnakeSegment> mSnake;
   private List<PivotPoint> mPivotPoints;
+  private List<ArrayList> mPoisonAppleCoord;
   
   public SnakeGame(int beginningDirection, int beginningSpriteDim, int beginningX, int beginningY, int width, int height){
       mSpriteDim = beginningSpriteDim;
@@ -18,11 +19,12 @@ public class SnakeGame {
       mYMax = mBOARD_HEIGHT / mSpriteDim;
       mScore = 0;
       mLevel = 1;
-      mCountdown = 12;
+      mCountdown = 10;
       mMillisDelay = 400;
       mAppleCoord = new int[2];
       mSnake = new ArrayList<>();
       mPivotPoints = new ArrayList<>();
+      mPoisonAppleCoord = new ArrayList<>();
       mSnake.add(new SnakeSegment(SnakeSegment.BodyPart.HEAD, beginningDirection, beginningX, beginningY));
       mSnake.add(new SnakeSegment(SnakeSegment.BodyPart.BODY, beginningDirection, beginningX - 1, beginningY));
       mSnake.add(new SnakeSegment(SnakeSegment.BodyPart.TAIL, beginningDirection, beginningX - 2, beginningY));
@@ -33,45 +35,104 @@ public class SnakeGame {
   protected int getSpriteDim() {return mSpriteDim;}
   protected int getMillisDelay() {return mMillisDelay;}
   protected int[] getAppleCoord() {return mAppleCoord;}
+  protected List<ArrayList> getPoisonAppleCoord() {return mPoisonAppleCoord;}
   protected int getScore() {return mScore;}
   protected int getLevel() {return mLevel;}
   protected int getCountdown() {return mCountdown;}
   protected boolean getGameOver() {return mGameOver;}
   
   protected void touched(float xTouched, float yTouched){
-    int degrees = mSnake.get(0).getDegrees();
-    int xHead = mSnake.get(0).getXLoc();
-    int yHead = mSnake.get(0).getYLoc();
-    int newDegrees = degrees;
-    if (degrees % 180 == 0) {
-        if (yTouched > (yHead * mSpriteDim)) newDegrees = 90;
-        else if (yTouched < ((yHead + 1) * mSpriteDim)) newDegrees = 270;
-    }
-    else if ((degrees + 90) % 180 == 0) {
-        if (xTouched > ((xHead + 1) * mSpriteDim)) newDegrees = 0;
-        else if (xTouched < (xHead * mSpriteDim)) newDegrees = 180;
-    }
-    if (newDegrees != degrees) mPivotPoints.add(new PivotPoint(xHead, yHead, newDegrees));
+      int degrees = mSnake.get(0).getDegrees();
+      int xHead = mSnake.get(0).getXLoc();
+      int yHead = mSnake.get(0).getYLoc();
+      int newDegrees = degrees;
+      if (degrees % 180 == 0) {
+          if (yTouched > (yHead * mSpriteDim)) newDegrees = 90;
+          else if (yTouched < ((yHead + 1) * mSpriteDim)) newDegrees = 270;
+      }
+      else if ((degrees + 90) % 180 == 0) {
+          if (xTouched > ((xHead + 1) * mSpriteDim)) newDegrees = 0;
+          else if (xTouched < (xHead * mSpriteDim)) newDegrees = 180;
+      }
+      if (newDegrees != degrees && newDegrees != Math.abs(degrees - 180)) mPivotPoints.add(new PivotPoint(xHead, yHead, newDegrees));
   }
 
   private void setAppleCoord() {
+      int x, y;
+      boolean sx, sy;
+      do {
+          sx = false;
+          sy = false;
+          x = (int) (mXMax * Math.random());
+          y = (int) (mYMax * Math.random());
+          for (int s = 0; s < mSnake.size(); s++) if (x == mSnake.get(s).getXLoc()) sx = true;
+          for (int s = 0; s < mSnake.size(); s++) if (y == mSnake.get(s).getYLoc()) sy = true;
+      } while (sx && sy);
+      mAppleCoord[0] = x * mSpriteDim;
+      mAppleCoord[1] = y * mSpriteDim;
+  }
+
+  private void setPoisonAppleCoord() {
       int[] max = {mXMax, mYMax};
-      int[] coord = {mSnake.get(0).getXLoc(), mSnake.get(0).getYLoc()};
-      for (int i = 0; i < mAppleCoord.length; i++) {
-          int rand;
+      for (int i = 0; i < mPoisonAppleCoord.size(); i++) {
+          int x, y;
+          boolean sx, sy;
+          ArrayList<Integer> coord = new ArrayList<>();
           do {
-              rand = (int) (max[i] * Math.random()) * mSpriteDim;
-          } while (rand == coord[i]);
-          mAppleCoord[i] = rand;
+              sx = false;
+              sy = false;
+              x = (int) (max[0] * Math.random());
+              y = (int) (max[1] * Math.random());
+              for (int s = 0; s < mSnake.size(); s++) if (x == mSnake.get(s).getXLoc()) sx = true;
+              for (int s = 0; s < mSnake.size(); s++) if (y == mSnake.get(s).getYLoc()) sy = true;
+              for (int s = 0; s < i; s++) if (Integer.valueOf(x) == mPoisonAppleCoord.get(s).get(0)) sx = true;
+              for (int s = 0; s < i; s++) if (Integer.valueOf(y) == mPoisonAppleCoord.get(s).get(1)) sy = true;
+              if (x == mAppleCoord[0]) sx = true;
+              if (y == mAppleCoord[1]) sy = true;
+          } while (sx && sy);
+          coord.add(x * mSpriteDim);
+          coord.add(y * mSpriteDim);
+          mPoisonAppleCoord.set(i, coord);
+      }
+  }
+    private void addPoisonAppleCoord() {
+        int[] max = {mXMax, mYMax};
+            int x, y;
+            boolean sx, sy;
+            ArrayList<Integer> coord = new ArrayList<>();
+            do {
+                sx = false;
+                sy = false;
+                x = (int) (max[0] * Math.random());
+                y = (int) (max[1] * Math.random());
+                for (int s = 0; s < mSnake.size(); s++) if (x == mSnake.get(s).getXLoc()) sx = true;
+                for (int s = 0; s < mSnake.size(); s++) if (y == mSnake.get(s).getYLoc()) sy = true;
+                for (int s = 0; s < mPoisonAppleCoord.size(); s++) if (Integer.valueOf(x) == mPoisonAppleCoord.get(s).get(0)) sx = true;
+                for (int s = 0; s < mPoisonAppleCoord.size(); s++) if (Integer.valueOf(y) == mPoisonAppleCoord.get(s).get(1)) sy = true;
+                if (x == mAppleCoord[0]) sx = true;
+                if (y == mAppleCoord[1]) sy = true;
+            } while (sx && sy);
+            coord.add(x * mSpriteDim);
+            coord.add(y * mSpriteDim);
+            mPoisonAppleCoord.add(coord);
+    }
+
+  private void eatApple() {
+      if (mSnake.get(0).getXLoc() == mAppleCoord[0] / mSpriteDim && mSnake.get(0).getYLoc() == mAppleCoord[1] / mSpriteDim) {
+          setAppleCoord();
+          setPoisonAppleCoord();
+          growSnake();
+          updateScoring();
       }
   }
 
-  protected void eatApple(){
-    if (mSnake.get(0).getXLoc() == mAppleCoord[0] / mSpriteDim && mSnake.get(0).getYLoc() == mAppleCoord[1] / mSpriteDim) {
-        setAppleCoord();
-        growSnake();
-        updateScoring();
-    }
+  private void eatPoisonApple() {
+      for (int i = 0; i < mPoisonAppleCoord.size(); i++) {
+          if (mSnake.get(0).getXLoc() == Integer.parseInt(mPoisonAppleCoord.get(i).get(0).toString()) / mSpriteDim
+                  && mSnake.get(0).getYLoc() == Integer.parseInt(mPoisonAppleCoord.get(i).get(1).toString()) / mSpriteDim) {
+              mGameOver = true;
+          }
+      }
   }
 
   private void growSnake() {
@@ -85,9 +146,24 @@ public class SnakeGame {
   }
 
   private void updateScoring() {
-      mScore++;
+      mScore += (int) Math.ceil((float) mLevel / 3);
       mCountdown--;
-      if (mCountdown == 0) mGameOver = true;
+      //if (mCountdown == 0) mGameOver = true;
+      if (mCountdown == 0) updateLevel();
+  }
+
+  private void updateLevel() {
+      mLevel++;
+      mCountdown = 10 + (mLevel / 3);
+      //mCountdown = 3;
+      if (mMillisDelay > 100) mMillisDelay -= 20;
+      if (mLevel % 5 == 1 && mSpriteDim > 40) {
+          mSpriteDim -= 5;
+          mXMax = mBOARD_WIDTH / mSpriteDim;
+          mYMax = mBOARD_HEIGHT / mSpriteDim;
+      }
+      //setPoisonAppleCoord();
+      if (mLevel % 5 == 0) addPoisonAppleCoord();
   }
 
   protected boolean play(){
@@ -127,6 +203,7 @@ public class SnakeGame {
           if (!mGameOver) mGameOver = (xLoc > mXMax || yLoc > mYMax || xLoc < 0 || yLoc < 0);
           if (i != 0 && mSnake.get(0).getXLoc() == mSnake.get(i).getXLoc() && mSnake.get(0).getYLoc() == mSnake.get(i).getYLoc()) mGameOver = true;
       }
+      eatPoisonApple();
       return mGameOver;
   }
 }

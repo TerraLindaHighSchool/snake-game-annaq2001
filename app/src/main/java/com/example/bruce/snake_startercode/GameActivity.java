@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GameActivity extends AppCompatActivity {
@@ -24,7 +25,7 @@ public class GameActivity extends AppCompatActivity {
     private TextView mTextScore, mTextHighScore, mTextCountdown;
     private int mBOARD_WIDTH, mBOARD_HEIGHT;
     private SnakeGame mGame;
-    private Bitmap mHeadBitmap, mBodyBitmap, mTailBitmap, mAppleBitmap;
+    private Bitmap mHeadBitmap, mBodyBitmap, mTailBitmap, mAppleBitmap, mPoisonAppleBitmap;
     private Handler mHandler;
 
     @Override
@@ -48,6 +49,7 @@ public class GameActivity extends AppCompatActivity {
         mBodyBitmap = BitmapFactory.decodeResource(mImageView.getResources(), R.drawable.body);
         mTailBitmap = BitmapFactory.decodeResource(mImageView.getResources(), R.drawable.tail);
         mAppleBitmap = BitmapFactory.decodeResource(mImageView.getResources(), R.drawable.apple);
+        mPoisonAppleBitmap = BitmapFactory.decodeResource(mImageView.getResources(), R.drawable.poison_apple);
 
         // Listen for screen touches
         mImageView.setOnTouchListener(new View.OnTouchListener() {
@@ -90,6 +92,7 @@ public class GameActivity extends AppCompatActivity {
         int[] appleCoord = mGame.getAppleCoord();
         int appleLeft = appleCoord[0];
         int appleTop = appleCoord[1];
+        List<ArrayList> poison = mGame.getPoisonAppleCoord();
         System.out.println(appleLeft + ", " + appleTop);
         Bitmap ourBitmap = Bitmap.createBitmap(mBOARD_WIDTH, mBOARD_HEIGHT, Bitmap.Config.ARGB_8888);
         Canvas window = new Canvas(ourBitmap);
@@ -121,6 +124,12 @@ public class GameActivity extends AppCompatActivity {
         // Draw Apple
         rectangle = new Rect(appleLeft, appleTop, appleLeft + mGame.getSpriteDim(), appleTop + mGame.getSpriteDim());
         window.drawBitmap(mAppleBitmap, null, rectangle, null);
+        for (int i = 0; i < poison.size(); i++) {
+            int left = Integer.parseInt(poison.get(i).get(0).toString());
+            int top = Integer.parseInt(poison.get(i).get(1).toString());
+            rectangle = new Rect(left, top, left + mGame.getSpriteDim(), top + mGame.getSpriteDim());
+            window.drawBitmap(mPoisonAppleBitmap, null, rectangle, null);
+        }
         mImageView.setImageBitmap(ourBitmap);
     }
 
