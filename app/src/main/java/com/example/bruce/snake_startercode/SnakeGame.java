@@ -148,21 +148,26 @@ public class SnakeGame {
   private void updateScoring() {
       mScore += (int) Math.ceil((float) mLevel / 3);
       mCountdown--;
-      //if (mCountdown == 0) mGameOver = true;
       if (mCountdown == 0) updateLevel();
   }
 
   private void updateLevel() {
+      /*********************************
+       * LEVEL EXTENSION DETAILS
+       * - the apple countdown increases by 1 every 3 levels
+       * - the snake moves faster by 20 milliseconds every level
+       * - the snake gets smaller by 5 pixels every 5 levels
+       * - a new poison apple appears every 5 levels
+       * - the location of existing apples changes every time an apple is eaten
+       *********************************/
       mLevel++;
       mCountdown = 10 + (mLevel / 3);
-      //mCountdown = 3;
       if (mMillisDelay > 100) mMillisDelay -= 20;
       if (mLevel % 5 == 1 && mSpriteDim > 40) {
           mSpriteDim -= 5;
           mXMax = mBOARD_WIDTH / mSpriteDim;
           mYMax = mBOARD_HEIGHT / mSpriteDim;
       }
-      //setPoisonAppleCoord();
       if (mLevel % 5 == 0) addPoisonAppleCoord();
   }
 

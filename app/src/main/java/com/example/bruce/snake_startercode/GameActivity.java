@@ -62,13 +62,6 @@ public class GameActivity extends AppCompatActivity {
             }
         });
 
-        /*mImageView.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKeyUp(View v, int keyCode, KeyEvent event) {
-                return false;
-            }
-        });*/
-
         // Snake Animation
         mHandler = new Handler();
         final Runnable r = new Runnable() {
